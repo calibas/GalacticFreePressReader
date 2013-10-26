@@ -7,6 +7,7 @@
 .metadata
 bin/
 gen/
+gen2/
 tmp/
 *.tmp
 *.bak
