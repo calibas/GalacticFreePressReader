@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.Html;
 import android.util.Xml;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class FetchXmlTask extends AsyncTask<Void, Void, Void>{
@@ -29,10 +31,17 @@ public class FetchXmlTask extends AsyncTask<Void, Void, Void>{
 //	public final static String EXTRA_MESSAGE = "org.soundofheart.galacticfreepressreader.MESSAGE";
     Context context;
     URL url;
+    int shiftPage = 0;
     
-    public FetchXmlTask(Context context, URL url) {
-    	this.url = url;
+    public FetchXmlTask(Context context, String urlString, int pageShift) throws MalformedURLException {
+		MainActivity activity = (MainActivity) context;
+        this.shiftPage = pageShift;
+        int page = activity.page + shiftPage;
+        this.url = new URL(urlString + page);
         this.context = context;
+        System.out.println("page " + page);
+        System.out.println(this.url);
+        System.out.println("shiftPage " + this.shiftPage);
     }
 
 	@Override
@@ -57,9 +66,14 @@ public class FetchXmlTask extends AsyncTask<Void, Void, Void>{
 //	    	intent.putExtra(EXTRA_MESSAGE, message);
 //			context.startActivity(intent);
 			MainActivity activity = (MainActivity) context;
+	        activity.page = activity.page + shiftPage;
 			activity.display(getData());
 	        final TextView noteTitle= (TextView)activity.findViewById(R.id.message);
 	        noteTitle.setText("");
+	        final Button prevButton = (Button)activity.findViewById(R.id.prevPage);
+	        prevButton.setEnabled(true);
+	        final Button nextButton = (Button)activity.findViewById(R.id.nextPage);
+	        nextButton.setEnabled(true);
 
 		}
 		else

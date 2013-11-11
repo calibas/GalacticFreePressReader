@@ -12,6 +12,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -27,8 +30,8 @@ public class MainActivity extends Activity implements OnItemClickListener{
 
 	FetchXmlTask task;
 	ArrayList<Node> arrayList = null;
-	int page = 0;
-	int position = 1;
+	public int page = 0;
+	int position = 0;
 	String type = null;
 	
     @Override
@@ -137,56 +140,71 @@ public class MainActivity extends Activity implements OnItemClickListener{
     
     public void openNews(View view) throws MalformedURLException
     {
+    	position = 0;
     	page = 0;
-        final TextView noteTitle= (TextView)this.findViewById(R.id.message);
+        final TextView noteTitle = (TextView)this.findViewById(R.id.message);
         noteTitle.setText("Loading...");
-    	URL url = new URL("http://soundofheart.org/galacticfreepress/app-news.xml?page=" + page);
-        task = (FetchXmlTask) new FetchXmlTask(this, url);
+        final Button newsButton = (Button)this.findViewById(R.id.buttonNews);
+        newsButton.getBackground().setColorFilter(0xFF00FF00, PorterDuff.Mode.MULTIPLY);
+    	String url = "http://soundofheart.org/galacticfreepress/app-news.xml?page=";
+        task = (FetchXmlTask) new FetchXmlTask(this, url, 0);
         task.execute();
         type = "news";
     }
     
     public void openVideos(View view) throws MalformedURLException
     {
+    	position = 0;
     	page = 0;
-        final TextView noteTitle= (TextView)this.findViewById(R.id.message);
+        final TextView noteTitle = (TextView)this.findViewById(R.id.message);
         noteTitle.setText("Loading...");
-    	URL url = new URL("http://soundofheart.org/galacticfreepress/app-videos.xml?page=" + page);
-        task = (FetchXmlTask) new FetchXmlTask(this, url);
+        final Button videosButton = (Button)this.findViewById(R.id.buttonVideos);
+//        videosButton.setBackgroundColor(Color.BLUE);
+        videosButton.getBackground().setColorFilter(0xFF00FF00, PorterDuff.Mode.MULTIPLY);
+    	String url = "http://soundofheart.org/galacticfreepress/app-videos.xml?page=";
+        task = (FetchXmlTask) new FetchXmlTask(this, url, 0);
         task.execute();
         type = "videos";
     }
     
     public void prevPage(View view) throws MalformedURLException
     {
-    	page--;
-        final TextView noteTitle= (TextView)this.findViewById(R.id.message);
+//    	page--;
+    	position = 0;
+        final TextView noteTitle = (TextView)this.findViewById(R.id.message);
         noteTitle.setText("Loading...");
-        URL url;
+        String url;
         if (type.equals("videos")) {
-        	url = new URL("http://soundofheart.org/galacticfreepress/app-videos.xml?page=" + page);
+        	url = "http://soundofheart.org/galacticfreepress/app-videos.xml?page=";
         } else {
-        	url = new URL("http://soundofheart.org/galacticfreepress/app-news.xml?page=" + page);
+        	url = "http://soundofheart.org/galacticfreepress/app-news.xml?page=";
         }
-        	
-        task = (FetchXmlTask) new FetchXmlTask(this, url);
+        final Button prevButton = (Button)this.findViewById(R.id.prevPage);
+        prevButton.setEnabled(false);
+        final Button nextButton = (Button)this.findViewById(R.id.nextPage);
+        nextButton.setEnabled(false);
+        task = (FetchXmlTask) new FetchXmlTask(this, url, -1);
         task.execute();
 
     }
     
     public void nextPage(View view) throws MalformedURLException
     {
-    	page++;
-        final TextView noteTitle= (TextView)this.findViewById(R.id.message);
+//    	page++;
+    	position = 0;
+        final TextView noteTitle = (TextView)this.findViewById(R.id.message);
         noteTitle.setText("Loading...");
-        URL url;
+        String url;
         if (type.equals("videos")) {
-        	url = new URL("http://soundofheart.org/galacticfreepress/app-videos.xml?page=" + page);
+        	url = "http://soundofheart.org/galacticfreepress/app-videos.xml?page=";
         } else {
-        	url = new URL("http://soundofheart.org/galacticfreepress/app-news.xml?page=" + page);
+        	url = "http://soundofheart.org/galacticfreepress/app-news.xml?page=";
         }
-        	
-        task = (FetchXmlTask) new FetchXmlTask(this, url);
+        final Button prevButton = (Button)this.findViewById(R.id.prevPage);
+        prevButton.setEnabled(false);
+        final Button nextButton = (Button)this.findViewById(R.id.nextPage);
+        nextButton.setEnabled(false);
+        task = (FetchXmlTask) new FetchXmlTask(this, url, 1);
         task.execute();
     }
     
@@ -200,6 +218,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		nodeList.setOnItemClickListener(this);
 		NodeListAdapter listAdapter = new NodeListAdapter(this, arrayList);
 		nodeList.setAdapter(listAdapter);
+		nodeList.setSelection(position);
         View prevPage = findViewById(R.id.prevPage);
         if (page <= 0) {
         	prevPage.setVisibility(View.GONE);  
@@ -207,6 +226,16 @@ public class MainActivity extends Activity implements OnItemClickListener{
         TextView pageNumber = (TextView) findViewById(R.id.page);
         int displayPage = page + 1;
         pageNumber.setText("Page " + displayPage);
+        if (type.equals("news"))
+        {
+            final Button newsButton = (Button)this.findViewById(R.id.buttonNews);
+            newsButton.getBackground().setColorFilter(0xFF00FF00, PorterDuff.Mode.MULTIPLY);
+        }
+        if (type.equals("videos"))
+        {
+            final Button videosButton = (Button)this.findViewById(R.id.buttonVideos);
+            videosButton.getBackground().setColorFilter(0xFF00FF00, PorterDuff.Mode.MULTIPLY);
+        }
     }
 
 	@Override
@@ -272,7 +301,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	{
 	  super.onRestoreInstanceState(savedInstanceState);
 	  
-	  //Reassemble arrayList
+	  //Reassemble arrayList 
 	  if (savedInstanceState.containsKey("count"))
 	  {
 		ArrayList<Node> newList = new ArrayList<Node>();;
